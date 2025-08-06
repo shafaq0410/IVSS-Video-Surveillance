@@ -79,7 +79,7 @@ Email Notifications
 
 1. **Clone the repository**:
   
-   git clone https://github.com/your-username/IVSS.git
+   git clone https://github.com/shafaq0410/IVSS.git
    cd IVSS
    
 Create and activate virtual environment (optional but recommended):
@@ -98,6 +98,8 @@ python main.py
 Open your browser and go to:
 
 http://localhost:5000
+
+------
 📦 Folder Structure
 css
 
@@ -113,6 +115,8 @@ IVSS/
 ├── main.py
 ├── requirements.txt
 └── README.md
+
+-------
 ✨ Highlights
 📷 Real-time, low-latency streaming across multiple cameras.
 
@@ -137,6 +141,8 @@ Email alert sent using SMTP (pre-configured).
 
 Alerts are saved in a local SQLite database.
 
+------
+
 🙋‍♀️ Use Cases
 🏠 Home Security
 
@@ -148,11 +154,17 @@ Alerts are saved in a local SQLite database.
 
 🏫 School/College Security
 
+------
+
 🧑‍💻 Contributors
-Your Name – Project Lead & Full-Stack Developer
+Shafaq , Samyak , Saumitra , Zaki , Gowthami
+
+-----
 
 📘 License
 This project is open-source and available under the MIT License.
+
+----
 
 💡 Future Enhancements
 📱 Mobile notifications
@@ -165,12 +177,16 @@ This project is open-source and available under the MIT License.
 
 📦 Dockerization for deployment
 
+------
 ⭐ Give a Star!
 If you found this project helpful, feel free to ⭐ star it on GitHub!
+-----
 git add .
 git commit -m "Initial commit with full surveillance system"
 git push origin main
+
+----
 🤝 Let's Connect!
 Connect with me on LinkedIn or GitHub to discuss security systems, Python, AI, or just to say hi!
-
+-----
 "Security is not a product, but a process." – Bruce Schneier
