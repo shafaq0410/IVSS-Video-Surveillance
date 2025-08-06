@@ -1,6 +1,6 @@
-# 👁️‍🗨️ IVSS - Integrated Video Surveillance System
+# 👁️‍🗨️ IVSS - Intelligent Video Surveillance System
 
-**IVSS** (Integrated Video Surveillance System) is a full-stack, intelligent, and scalable surveillance solution developed in Python. It leverages cutting-edge technologies in computer vision to monitor multiple camera feeds in real-time, detect motion and objects, recognize faces, and generate alerts through an intuitive web interface.
+**IVSS** (Intelligent Video Surveillance System) is a full-stack, intelligent, and scalable surveillance solution developed in Python. It leverages cutting-edge technologies in computer vision to monitor multiple camera feeds in real-time, detect motion and objects, recognize faces, and generate alerts through an intuitive web interface.
 
 ---
 
