@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .camera-preview {
+      position: relative;
+      overflow: hidden;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .input-field {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-success {
+      background: linear-gradient(45deg, #4ecdc4, #44a08d);
+      transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(78, 205, 196, 0.3);
+    }
+
+    .btn-danger {
+      background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+      transition: all 0.3s ease;
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(45deg, #6c757d, #5a6268);
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(108, 117, 125, 0.3);
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .checkbox-custom {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .checkbox-custom:checked {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      border-color: #667eea;
+    }
+
+    .checkbox-custom:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .range-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      outline: none;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    }
+
+    .range-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    }
+  </style>
+</head>
+{% extends "base.html" %}
+{% block title %}Dashboard - IVSS{% endblock %}
+{% block content %}
+
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-gray-100">
+  <!-- Navigation -->
+
+
+  <!-- Main Content -->
+  <div class="container mx-auto px-6 py-8">
+    <div class="max-w-6xl mx-auto">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          System Settings
+        </h1>
+        <p class="text-gray-400">Configure each camera feed's source and detections</p>
+      </div>
+
+      <!-- Success Message -->
+      <div id="save-status"
+        class="hidden mb-6 p-4 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400 text-center fade-in">
+        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clip-rule="evenodd" />
+        </svg>
+        <span id="save-status-text"></span>
+      </div>
+
+      <!-- Main Form -->
+      <div class="glass-effect rounded-2xl p-8 shadow-2xl">
+        <form id="settings-form" class="space-y-6">
+          <div id="camera-settings-container">
+            <!-- Camera settings will be populated here -->
+          </div>
+
+          <div class="flex space-x-4">
+            <button type="button" id="add-camera"
+              class="btn-success px-6 py-3 rounded-lg font-semibold text-white transition-all duration-300">
+              <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                  clip-rule="evenodd" />
+              </svg>
+              Add Camera
+            </button>
+
+            <button type="button" id="save-settings"
+              class="btn-primary px-6 py-3 rounded-lg font-semibold text-white transition-all duration-300">
+              <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clip-rule="evenodd" />
+              </svg>
+              Save Settings
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="glass-effect rounded-2xl p-8 text-center">
+      <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500 mx-auto mb-4"></div>
+      <p class="text-gray-300">Saving settings...</p>
+    </div>
+  </div>
+
+  <script>
+    // // Initialize cameras data
+
+    // Get the saved settings from the server.
+    let cameras = {{ cameras_json| safe }};
+
+    // Ensure camera source is numeric index
+    cameras.forEach((cam, index) => {
+      if (cam.source === undefined || cam.source === "") {
+        cam.source = index.toString();
+      }
+    });
+    console.log(cameras);
+
+
+
+
+    let availableCameras = [];
+    let activePreviews = new Map(); // Track active video streams
+
+    const container = document.getElementById('camera-settings-container');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const saveStatus = document.getElementById('save-status');
+    const saveStatusText = document.getElementById('save-status-text');
+
+    // Load available cameras
+    async function loadAvailableCameras() {
+      try {
+        const tempStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        tempStream.getTracks().forEach(track => track.stop());
+
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        availableCameras = devices.filter(device => device.kind === 'videoinput');
+        console.log('Available cameras:', availableCameras);
+        return availableCameras;
+      } catch (error) {
+        console.error('Error loading cameras:', error);
+        return [];
+      }
+    }
+
+    // Start camera preview
+    async function startCameraPreview(deviceId, videoElement) {
+      try {
+        // Stop existing stream if any
+        if (activePreviews.has(deviceId)) {
+          activePreviews.get(deviceId).getTracks().forEach(track => track.stop());
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            deviceId: { exact: deviceId },
+            width: { ideal: 320 },
+            height: { ideal: 240 }
+          }
+        });
+
+        videoElement.srcObject = stream;
+        activePreviews.set(deviceId, stream);
+
+        return true;
+      } catch (error) {
+        console.error('Error starting camera preview:', error);
+        return false;
+      }
+    }
+
+    // Stop camera preview
+    function stopCameraPreview(deviceId) {
+      if (activePreviews.has(deviceId)) {
+        activePreviews.get(deviceId).getTracks().forEach(track => track.stop());
+        activePreviews.delete(deviceId);
+      }
+    }
+
+    // Create camera options HTML
+    function createCameraOptions() {
+      if (availableCameras.length === 0) {
+        return '<option value="">No cameras available</option>';
+      }
+
+      let options = '<option value="">Select a camera</option>';
+      availableCameras.forEach((camera, index) => {
+        options += `<option value="${camera.label}">${camera.label || `Camera ${index + 1}`}</option>`;
+      });
+
+      return options;
+      console.log("index");
+      console.log(index);
+
+    }
+
+    // Render camera settings
+    function renderCameraSettings() {
+      container.innerHTML = "";
+
+      cameras.forEach((cam, index) => {
+        const div = document.createElement('div');
+        div.className = "glass-effect rounded-xl p-6 mb-6 fade-in";
+
+        div.innerHTML = `
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                            Camera ${index + 1}
+                        </h3>
+                        ${index !== 0 ? `
+                            <button type="button" class="btn-danger px-4 py-2 rounded-lg font-semibold text-white transition-all duration-300 delete-camera" data-index="${index}">
+                                <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                Delete
+                            </button>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <!-- Camera Source Selection -->
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-gray-300">Camera Source</label>
+                                <select class="input-field w-full p-3 rounded-lg text-gray-200 outline-none camera-select" data-index="${index}">
+                                    ${createCameraOptions()}
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-gray-300">Manual Source (Optional)</label>
+                                <input type="text" class="input-field w-full p-3 rounded-lg text-gray-200 placeholder-gray-500 outline-none" 
+                                       value="${cam.source || ''}" data-index="${index}" data-field="source"
+                                       placeholder="Enter camera source (e.g., 0, 1, or rtsp://...)">
+                            </div>
+                            
+                            <button type="button" class="btn-secondary w-full py-2 px-4 rounded-lg font-semibold text-white transition-all duration-300 preview-btn" 
+                                    data-index="${index}">
+                                <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Preview Camera
+                            </button>
+                        </div>
+                        
+                        <!-- Camera Preview -->
+                        <div class="space-y-4">
+                            <label class="block text-sm font-semibold text-gray-300">Camera Preview</label>
+                            <div class="camera-preview bg-gray-800 min-h-[200px] flex items-center justify-center">
+                                <video class="camera-video w-full h-full object-cover rounded-lg" data-index="${index}" autoplay muted style="display: none;">
+                                    Your browser does not support the video tag.
+                                </video>
+                                <div class="preview-placeholder text-gray-500 text-center" data-index="${index}">
+                                    <svg class="w-16 h-16 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <p>Select camera and click preview</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Detection Settings -->
+                    <div class="mt-6 space-y-4">
+                        <h4 class="text-lg font-semibold text-gray-300 mb-3">Detection Settings</h4>
+                        
+                        <!-- Detection Types -->
+                        <div class="grid grid-cols-3 gap-4 mb-4">
+                            <label class="flex items-center space-x-3 cursor-pointer">
+                                <input type="checkbox" class="checkbox-custom" data-index="${index}" data-field="motion" ${cam.detections.includes("motion") ? "checked" : ""}>
+                                <span class="text-gray-300">Motion Detection</span>
+                            </label>
+                            <label class="flex items-center space-x-3 cursor-pointer">
+                                <input type="checkbox" class="checkbox-custom" data-index="${index}" data-field="object" ${cam.detections.includes("object") ? "checked" : ""}>
+                                <span class="text-gray-300">Object Detection</span>
+                            </label>
+                            <label class="flex items-center space-x-3 cursor-pointer">
+                                <input type="checkbox" class="checkbox-custom" data-index="${index}" data-field="face" ${cam.detections.includes("face") ? "checked" : ""}>
+                                <span class="text-gray-300">Face Detection</span>
+                            </label>
+                        </div>
+                        
+                        <!-- Threshold Settings -->
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-gray-300">
+                                    Object Detection Threshold: <span class="text-purple-400" data-index="${index}" data-display="object-threshold">${cam.objectThreshold || 0.5}</span>
+                                </label>
+                                <input type="range" min="0.1" max="1.0" step="0.05" value="${cam.objectThreshold || 0.5}" 
+                                       class="range-slider w-full" data-index="${index}" data-field="objectThreshold">
+                                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                    <span>0.1 (Low)</span>
+                                    <span>1.0 (High)</span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-gray-300">
+                                    Motion Detection Threshold: <span class="text-purple-400" data-index="${index}" data-display="motion-threshold">${cam.motionThreshold || 30}</span>
+                                </label>
+                                <input type="range" min="10" max="100" step="5" value="${cam.motionThreshold || 30}" 
+                                       class="range-slider w-full" data-index="${index}" data-field="motionThreshold">
+                                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                    <span>10 (Sensitive)</span>
+                                    <span>100 (Less Sensitive)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+        container.appendChild(div);
+
+        // Set the selected camera in dropdown
+        const cameraSelect = div.querySelector('.camera-select');
+        if (cam.selectedDeviceId) {
+          cameraSelect.value = cam.selectedDeviceId;
+        }
+      });
+    }
+
+    // Event listeners
+    container.addEventListener('change', (e) => {
+      const index = parseInt(e.target.getAttribute('data-index'));
+      const field = e.target.getAttribute('data-field');
+
+      if (field === 'source') {
+        cameras[index].source = e.target.value;
+      } else if (field === 'objectThreshold') {
+        cameras[index].objectThreshold = parseFloat(e.target.value);
+        document.querySelector(`[data-index="${index}"][data-display="object-threshold"]`).textContent = e.target.value;
+      } else if (field === 'motionThreshold') {
+        cameras[index].motionThreshold = parseInt(e.target.value);
+        document.querySelector(`[data-index="${index}"][data-display="motion-threshold"]`).textContent = e.target.value;
+      } else if (['motion', 'object', 'face'].includes(field)) {
+        if (e.target.checked) {
+          if (!cameras[index].detections.includes(field)) {
+            cameras[index].detections.push(field);
+          }
+        } else {
+          cameras[index].detections = cameras[index].detections.filter(d => d !== field);
+        }
+      }
+    });
+
+    // Camera selection change
+    // Camera selection change
+    container.addEventListener('change', (e) => {
+      if (e.target.classList.contains('camera-select')) {
+        const index = parseInt(e.target.getAttribute('data-index'));
+        const selectedLabel = e.target.value;
+        const selectedCamera = availableCameras.find(c => c.label === selectedLabel);
+
+        if (selectedCamera) {
+          const camIndex = availableCameras.indexOf(selectedCamera);
+          cameras[index].source = camIndex.toString();  // Only save numeric index
+
+          // Update the manual input field
+          const sourceInput = e.target.closest('.glass-effect').querySelector('input[data-field="source"]');
+          if (sourceInput) {
+            sourceInput.value = camIndex.toString();
+          }
+        }
+      }
+    });
+
+    // Preview button click
+    container.addEventListener('click', async (e) => {
+      if (e.target.classList.contains('preview-btn') || e.target.closest('.preview-btn')) {
+        const btn = e.target.closest('.preview-btn');
+        const index = parseInt(btn.getAttribute('data-index'));
+        const selectedIndex = parseInt(cameras[index].source);
+        const deviceId = availableCameras[selectedIndex]?.deviceId;
+
+        if (!deviceId) {
+          alert('Please select a camera first');
+          return;
+        }
+
+        const videoElement = document.querySelector(`video[data-index="${index}"]`);
+        const placeholder = document.querySelector(`.preview-placeholder[data-index="${index}"]`);
+
+        btn.disabled = true;
+        btn.innerHTML = '<div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white inline mr-2"></div>Loading...';
+
+        const success = await startCameraPreview(deviceId, videoElement);
+
+        if (success) {
+          videoElement.style.display = 'block';
+          placeholder.style.display = 'none';
+          btn.innerHTML = '<svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Preview Active';
+          btn.classList.remove('btn-secondary');
+          btn.classList.add('btn-success');
+        } else {
+          btn.innerHTML = '<svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>Preview Camera';
+          alert('Failed to start camera preview');
+        }
+
+        btn.disabled = false;
+      }
+    });
+
+    // Delete camera
+    container.addEventListener('click', (e) => {
+      if (e.target.classList.contains('delete-camera') || e.target.closest('.delete-camera')) {
+        const btn = e.target.closest('.delete-camera');
+        const index = parseInt(btn.getAttribute('data-index'));
+
+        if (index !== 0) {
+          // Stop preview if active
+          if (cameras[index].selectedDeviceId) {
+            stopCameraPreview(cameras[index].selectedDeviceId);
+          }
+          cameras.splice(index, 1);
+          renderCameraSettings();
+        }
+      }
+    });
+
+    // Add camera
+    document.getElementById('add-camera').addEventListener('click', () => {
+      cameras.push({
+        source: "",
+        detections: [],
+        objectThreshold: 0.5,
+        motionThreshold: 30
+      });
+      renderCameraSettings();
+    });
+
+    // Save settings
+    document.getElementById('save-settings').addEventListener('click', async () => {
+      loadingOverlay.classList.remove('hidden');
+
+      try {
+        const textInputs = document.querySelectorAll('input[type="text"][data-index]');
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][data-index]');
+        const ranges = document.querySelectorAll('input[type="range"][data-index]');
+        const dataByIndex = {};
+
+        // With this:
+        cameras.forEach((cam, idx) => {
+          dataByIndex[idx] = dataByIndex[idx] || {};
+          dataByIndex[idx].source = cam.source || "";
+        });
+        // Handle checkboxes
+        checkboxes.forEach(cb => {
+          const idx = cb.getAttribute('data-index');
+          dataByIndex[idx] = dataByIndex[idx] || {};
+          dataByIndex[idx].detections = dataByIndex[idx].detections || [];
+          if (cb.checked) {
+            dataByIndex[idx].detections.push(cb.getAttribute('data-field'));
+          }
+        });
+
+        // Handle range inputs
+        ranges.forEach(range => {
+          const idx = range.getAttribute('data-index');
+          const field = range.getAttribute('data-field');
+          dataByIndex[idx] = dataByIndex[idx] || {};
+
+          if (field === 'objectThreshold') {
+            dataByIndex[idx].objectThreshold = parseFloat(range.value);
+          } else if (field === 'motionThreshold') {
+            dataByIndex[idx].motionThreshold = parseInt(range.value);
+          }
+        });
+
+        // Convert to array sorted by index.
+        let updatedCameras = [];
+        Object.keys(dataByIndex).sort((a, b) => a - b).forEach(key => {
+          updatedCameras.push(dataByIndex[key]);
+        });
+
+        // Ensure the first camera always has a source.
+        // if (!updatedCameras[0].source) {
+        //   updatedCameras[0].source = "0";
+        // }
+
+        cameras = updatedCameras;
+
+        // Send data to server
+        const response = await fetch('/api/save_camera_settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cameras })
+        });
+
+        if (!response.ok) throw new Error('Failed to save settings');
+
+        const result = await response.json();
+        showSuccess('Settings saved successfully!');
+        location.reload(); // Reload to reflect changes
+
+      } catch (error) {
+        console.error('Error saving settings:', error);
+        showError('Error saving settings: ' + error.message);
+      } finally {
+        loadingOverlay.classList.add('hidden');
+      }
+    });
+
+
+    // Show success message continuation
+    function showSuccess(message) {
+      saveStatusText.textContent = message;
+      saveStatus.className = 'mb-6 p-4 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400 text-center fade-in';
+      saveStatus.classList.remove('hidden');
+      setTimeout(() => {
+        saveStatus.classList.add('hidden');
+      }, 5000);
+    }
+
+    // Show error message
+    function showError(message) {
+      saveStatusText.textContent = message;
+      saveStatus.className = 'mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-center fade-in';
+      saveStatus.classList.remove('hidden');
+      setTimeout(() => {
+        saveStatus.classList.add('hidden');
+      }, 5000);
+    }
+
+    // Initialize the application
+    async function init() {
+      // After loadAvailableCameras()
+      // After loadAvailableCameras();
+      cameras.forEach((cam, index) => {
+        const foundDevice = availableCameras.find(dev => dev.label === cam.source);
+        if (foundDevice) {
+          cam.selectedDeviceId = foundDevice.deviceId;
+        }
+      });
+      try {
+        await loadAvailableCameras();
+        renderCameraSettings();
+
+        // Add focus/blur effects to inputs
+        document.addEventListener('focusin', (e) => {
+          if (e.target.classList.contains('input-field')) {
+            e.target.style.borderColor = '#667eea';
+            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+          }
+        });
+
+        document.addEventListener('focusout', (e) => {
+          if (e.target.classList.contains('input-field')) {
+            e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            e.target.style.boxShadow = 'none';
+          }
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+          if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            document.getElementById('save-settings').click();
+          }
+          if (e.ctrlKey && e.key === 'n') {
+            e.preventDefault();
+            document.getElementById('add-camera').click();
+          }
+        });
+
+        console.log('Application initialized successfully');
+
+      } catch (error) {
+        console.error('Error initializing application:', error);
+        showError('Error initializing application: ' + error.message);
+      }
+    }
+
+    // Cleanup function for when page is unloaded
+    window.addEventListener('beforeunload', () => {
+      // Stop all active camera previews
+      activePreviews.forEach((stream, deviceId) => {
+        stream.getTracks().forEach(track => track.stop());
+      });
+      activePreviews.clear();
+    });
+
+    // Handle page visibility change (pause/resume camera previews)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        // Pause all camera previews when page is hidden
+        activePreviews.forEach((stream, deviceId) => {
+          stream.getTracks().forEach(track => {
+            track.enabled = false;
+          });
+        });
+      } else {
+        // Resume all camera previews when page is visible
+        activePreviews.forEach((stream, deviceId) => {
+          stream.getTracks().forEach(track => {
+            track.enabled = true;
+          });
+        });
+      }
+    });
+
+    // Error handling for camera access
+    window.addEventListener('error', (e) => {
+      if (e.message.includes('camera') || e.message.includes('video')) {
+        showError('Camera access error: ' + e.message);
+      }
+    });
+
+    // Initialize the application when DOM is loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+{% endblock %}

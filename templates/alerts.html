@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+{% block title %}Alerts & Notifications - IVSS{% endblock %}
+{% block content %}
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-2">Alerts & Notifications</h1>
+    <p class="text-sm text-gray-300 mb-4">Monitor and manage system alerts for each camera</p>
+    
+    <!-- Alert Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gray-800 p-4 rounded-lg">
+            <h3 class="text-sm font-medium text-gray-400">Total Alerts</h3>
+            <p class="text-2xl font-bold text-white" id="stat-total">0</p>
+        </div>
+        <div class="bg-yellow-900 p-4 rounded-lg">
+            <h3 class="text-sm font-medium text-yellow-200">New Alerts</h3>
+            <p class="text-2xl font-bold text-yellow-100" id="stat-new">0</p>
+        </div>
+        <div class="bg-blue-900 p-4 rounded-lg">
+            <h3 class="text-sm font-medium text-blue-200">Acknowledged</h3>
+            <p class="text-2xl font-bold text-blue-100" id="stat-acknowledged">0</p>
+        </div>
+        <div class="bg-green-900 p-4 rounded-lg">
+            <h3 class="text-sm font-medium text-green-200">Resolved</h3>
+            <p class="text-2xl font-bold text-green-100" id="stat-resolved">0</p>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="bg-gray-800 p-4 rounded-lg mb-6">
+        <h3 class="text-lg font-semibold mb-3">Filter Alerts</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Status</label>
+                <select id="status-filter" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white">
+                    <option value="all">All Status</option>
+                    <option value="New">New</option>
+                    <option value="Acknowledged">Acknowledged</option>
+                    <option value="Resolved">Resolved</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Severity</label>
+                <select id="severity-filter" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white">
+                    <option value="all">All Severity</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Detection Review</label>
+                <select id="detection-filter" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white">
+                    <option value="all">All Detections</option>
+                    <option value="true">True Detection</option>
+                    <option value="false">False Detection</option>
+                    <option value="unreviewed">Unreviewed</option>
+                </select>
+            </div>
+        </div>
+        <button onclick="applyFilters()" class="mt-3 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white">
+            Apply Filters
+        </button>
+        <button onclick="clearFilters()" class="mt-3 ml-2 bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded text-white">
+            Clear Filters
+        </button>
+    </div>
+    
+    <!-- Alert List -->
+    <div class="bg-gray-800 rounded-lg p-4">
+        <h3 class="text-lg font-semibold mb-3">Alert List</h3>
+        <div id="alert-list" class="space-y-3">
+            <div class="text-gray-400">No alerts yet.</div>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Detail Modal -->
+<div id="alert-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full">
+            <h3 class="text-lg font-semibold mb-4">Alert Details</h3>
+            <div id="modal-content">
+                <!-- Alert details will be populated here -->
+            </div>
+            <div class="mt-4 flex justify-end space-x-2">
+                <button onclick="closeModal()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded text-white">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentAlerts = [];
+
+function updateAlerts() {
+    const statusFilter = document.getElementById('status-filter').value;
+    const severityFilter = document.getElementById('severity-filter').value;
+    const detectionFilter = document.getElementById('detection-filter').value;
+    
+    const params = new URLSearchParams();
+    if (statusFilter !== 'all') params.append('status', statusFilter);
+    if (severityFilter !== 'all') params.append('severity', severityFilter);
+    if (detectionFilter !== 'all') params.append('detection', detectionFilter);
+    
+    fetch(`/api/alerts?${params.toString()}`)
+        .then(response => response.json())
+        .then(alerts => {
+            currentAlerts = alerts;
+            displayAlerts(alerts);
+        })
+        .catch(error => console.error('Error fetching alerts:', error));
+}
+
+function displayAlerts(alerts) {
+    const alertList = document.getElementById('alert-list');
+    alertList.innerHTML = '';
+    
+    if (alerts.length === 0) {
+        alertList.innerHTML = '<div class="text-gray-400">No alerts match the current filters.</div>';
+        return;
+    }
+    
+    alerts.forEach(alert => {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'border border-gray-600 rounded-lg p-4 hover:bg-gray-700 cursor-pointer';
+        alertDiv.onclick = () => showAlertDetails(alert);
+        
+        const statusColor = getStatusColor(alert.status);
+        const severityColor = getSeverityColor(alert.severity);
+        const detectionBadge = getDetectionBadge(alert.is_true_detection);
+        
+        alertDiv.innerHTML = `
+            <div class="flex justify-between items-start mb-2">
+                <div class="flex-1">
+                    <h4 class="font-semibold text-white">${alert.camera} - ${alert.location}</h4>
+                    <p class="text-sm text-gray-300">${alert.time}</p>
+                </div>
+                <div class="flex space-x-2">
+                    <span class="px-2 py-1 rounded text-xs ${statusColor}">${alert.status}</span>
+                    <span class="px-2 py-1 rounded text-xs ${severityColor}">${alert.severity}</span>
+                </div>
+            </div>
+            <p class="text-sm text-gray-300 mb-2">${alert.message}</p>
+            <div class="flex justify-between items-center">
+                ${detectionBadge}
+                <div class="flex space-x-2">
+                    <button onclick="event.stopPropagation(); updateAlertStatus(${alert.id}, 'Acknowledged')" 
+                            class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs text-white">
+                        Acknowledge
+                    </button>
+                    <button onclick="event.stopPropagation(); updateAlertStatus(${alert.id}, 'Resolved')" 
+                            class="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-xs text-white">
+                        Resolve
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        alertList.appendChild(alertDiv);
+    });
+}
+
+function getStatusColor(status) {
+    switch(status) {
+        case 'New': return 'bg-yellow-600 text-yellow-100';
+        case 'Acknowledged': return 'bg-blue-600 text-blue-100';
+        case 'Resolved': return 'bg-green-600 text-green-100';
+        default: return 'bg-gray-600 text-gray-100';
+    }
+}
+
+function getSeverityColor(severity) {
+    switch(severity) {
+        case 'high': return 'bg-red-600 text-red-100';
+        case 'medium': return 'bg-yellow-600 text-yellow-100';
+        case 'low': return 'bg-blue-600 text-blue-100';
+        default: return 'bg-gray-600 text-gray-100';
+    }
+}
+
+function getDetectionBadge(isTrue) {
+    if (isTrue === true) {
+        return '<span class="px-2 py-1 bg-green-600 text-green-100 rounded text-xs">✓ True Detection</span>';
+    } else if (isTrue === false) {
+        return '<span class="px-2 py-1 bg-red-600 text-red-100 rounded text-xs">✗ False Detection</span>';
+    } else {
+        return '<span class="px-2 py-1 bg-gray-600 text-gray-100 rounded text-xs">? Unreviewed</span>';
+    }
+}
+
+function updateAlertStatus(alertId, newStatus) {
+    fetch(`/api/alerts/${alertId}/update`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateAlerts();
+            updateStats();
+        }
+    })
+    .catch(error => console.error('Error updating alert:', error));
+}
+
+function markDetection(alertId, isTrue) {
+    fetch(`/api/alerts/${alertId}/update`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ is_true_detection: isTrue })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateAlerts();
+            updateStats();
+        }
+    })
+    .catch(error => console.error('Error marking detection:', error));
+}
+
+function showAlertDetails(alert) {
+    const modal = document.getElementById('alert-modal');
+    const modalContent = document.getElementById('modal-content');
+    
+    modalContent.innerHTML = `
+        <div class="space-y-3">
+            <div><strong>Camera:</strong> ${alert.camera}</div>
+            <div><strong>Location:</strong> ${alert.location}</div>
+            <div><strong>Time:</strong> ${alert.time}</div>
+            <div><strong>Message:</strong> ${alert.message}</div>
+            <div><strong>Severity:</strong> <span class="px-2 py-1 rounded text-xs ${getSeverityColor(alert.severity)}">${alert.severity}</span></div>
+            <div><strong>Status:</strong> <span class="px-2 py-1 rounded text-xs ${getStatusColor(alert.status)}">${alert.status}</span></div>
+            <div><strong>Detection Review:</strong> ${getDetectionBadge(alert.is_true_detection)}</div>
+            ${alert.reviewed_by ? `<div><strong>Reviewed By:</strong> ${alert.reviewed_by}</div>` : ''}
+            ${alert.reviewed_at ? `<div><strong>Reviewed At:</strong> ${new Date(alert.reviewed_at).toLocaleString()}</div>` : ''}
+        </div>
+        <div class="mt-4 space-y-2">
+            <h4 class="font-semibold">Actions:</h4>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="markDetection(${alert.id}, true)" 
+                        class="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-xs text-white">
+                    Mark True Detection
+                </button>
+                <button onclick="markDetection(${alert.id}, false)" 
+                        class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs text-white">
+                    Mark False Detection
+                </button>
+                <button onclick="updateAlertStatus(${alert.id}, 'Acknowledged')" 
+                        class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs text-white">
+                    Acknowledge
+                </button>
+                <button onclick="updateAlertStatus(${alert.id}, 'Resolved')" 
+                        class="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-xs text-white">
+                    Resolve
+                </button>
+            </div>
+        </div>
+    `;
+    
+    modal.classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('alert-modal').classList.add('hidden');
+}
+
+function applyFilters() {
+    updateAlerts();
+}
+
+function clearFilters() {
+    document.getElementById('status-filter').value = 'all';
+    document.getElementById('severity-filter').value = 'all';
+    document.getElementById('detection-filter').value = 'all';
+    updateAlerts();
+}
+
+function updateStats() {
+    fetch('/api/alerts/stats')
+        .then(response => response.json())
+        .then(stats => {
+            document.getElementById('stat-total').textContent = stats.total;
+            document.getElementById('stat-new').textContent = stats.by_status.new;
+            document.getElementById('stat-acknowledged').textContent = stats.by_status.acknowledged;
+            document.getElementById('stat-resolved').textContent = stats.by_status.resolved;
+        })
+        .catch(error => console.error('Error fetching stats:', error));
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    updateAlerts();
+    updateStats();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+        updateAlerts();
+        updateStats();
+    }, 30000);
+});
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('alert-modal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
+</script>
+{% endblock %}

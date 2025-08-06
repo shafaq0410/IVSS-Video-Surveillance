@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Live Monitoring - IVSS{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-2">Live Monitoring</h1>
+<p class="text-sm text-gray-300 mb-4">View all camera feeds</p>
+
+<div class="grid grid-cols-1 md:grid-cols-{{ camera_ids|length }} gap-4">
+  {% for cam in camera_ids %}
+  <div class="bg-[#1F213E] rounded p-4">
+    <h2 class="text-xl font-semibold mb-2">Camera {{ loop.index }}</h2>
+    <img src="{{ url_for('video_feed', cam_id=loop.index0) }}" class="w-full rounded border" alt="Live Feed">
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
