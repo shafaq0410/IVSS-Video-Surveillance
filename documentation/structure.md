@@ -124,12 +124,5 @@
 * Gmail ID/password for sending alerts
 * IP camera URLs (e.g., DroidCam: http://<ip>:4747/video)
 
----
 
-### 📈 Goals for Freelancer
 
-1. Improve model reliability (precision/recall)
-2. Make detection more robust and modular
-3. Handle edge cases + resolve frame bugs
-4. Optional: improve face recognition or retrain models
-5. Deliver a production-ready, testable IVSS app
