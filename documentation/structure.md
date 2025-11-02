@@ -1,4 +1,4 @@
-### 🧩 Remaining Work / Freelance Task Scope
+### 🧩 Remaining Work 
 
 #### 🟡 1. Improve Detection Quality & Alert Precision
 
